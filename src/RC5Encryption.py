@@ -1,4 +1,3 @@
-import base64
 import os
 
 class RC5Encryption(object):
