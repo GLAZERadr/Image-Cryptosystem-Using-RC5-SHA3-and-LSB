@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}Hybrid Cryptosystem{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>Hybrid Cryptosystem Using RC5 SHA3 LSB</h1>
+            <nav>
+                <a href="{{ url_for('home') }}">Home</a>
+                <a href="{{ url_for('encrypt') }}">Encrypt</a>
+                <a href="{{ url_for('decrypt') }}">Decrypt</a>
+            </nav>
+        </div>
+    </header>
+    <div class="main">
+        {% block content %}{% endblock %}
+    </div>
+    <div class="footer">
+        <p>&#169; Created 2024 - Hybridcryptosystem</p>
+    </div>
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+</body>
+</html>

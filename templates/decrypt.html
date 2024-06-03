@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+
+{% block title %}Decrypt{% endblock %}
+
+{% block content %}
+<div class="container">
+    {% for message in get_flashed_messages() %}
+    <div class="flash-message warning" id="flash-message">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        {{ message }}
+    </div>
+    {% endfor %}
+
+    {% block page_content %}{% endblock %}
+</div>
+<h2>Decrypt Your Image Here!!!</h2>
+<form id="decrypt-form" action="/decrypt" method="post" enctype="multipart/form-data">
+    <div class="drag-drop-container">
+        <div class="drop-zone" id="encrypted_file_drop">
+            <span class="drop-zone__prompt">Drop Your Ciphertext .txt File Here!</span>
+            <input type="file" id="encrypted_file" name="encrypted_file" class="drop-zone__input" required>
+        </div>
+        <div class="drop-zone" id="encoded_image_file_drop">
+            <span class="drop-zone__prompt">Drop Your Encoded Image Here</span>
+            <input type="file" id="encoded_image_file" name="encoded_image_file" class="drop-zone__input" required>
+        </div>
+    </div>
+    <button type="submit">Decrypt</button>
+</form>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var flashMessage = document.getElementById('flash-message');
+        if (flashMessage) {
+            setTimeout(function() {
+                flashMessage.style.display = 'none';
+            }, 10000); // Hide after 5 seconds
+        }
+    });
+</script>
+{% endblock %}
