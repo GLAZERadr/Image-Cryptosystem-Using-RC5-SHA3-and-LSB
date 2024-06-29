@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+
+{% block title %}Image Testing Results{% endblock %}
+
+{% block content %}
+<h2>Image Testing Results</h2>
+
+<div class="image-container">
+    <div class="image-container-in-container">
+        <h3>Plain Image</h3>
+        <img src="{{ plain_image_path }}" alt="Original Image">
+    </div>
+
+    <div class="image-container-in-container">
+        <h3>Cover Image</h3>
+        <img src="{{ cover_image_path }}" alt="Cover Image">
+    </div>
+</div>
+
+<h3>Results:</h3>
+<table class="result-table">
+    <tr>
+        <th>Metric</th>
+        <th>Value</th>
+    </tr>
+    <tr>
+        <td>MSE (Mean Squared Error)</td>
+        <td>{{ mse }}</td>
+    </tr>
+    <tr>
+        <td>PSNR (Peak Signal-to-Noise Ratio)</td>
+        <td>{{ psnr }}</td>
+    </tr>
+</table>
+
+<!-- <div class="button-container">
+    <a class="button-home" href="/">Back to Home</a>
+</div> -->
+{% endblock %}

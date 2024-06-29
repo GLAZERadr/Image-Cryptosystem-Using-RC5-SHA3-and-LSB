@@ -1,8 +1,11 @@
-from flask import Flask, request, render_template, send_file, redirect, flash
+from flask import Flask, request, render_template, send_file, redirect, flash, url_for, send_from_directory
 import os
 from io import BytesIO
 import zipfile
 from PIL import Image
+import numpy as np
+import cv2
+from werkzeug.utils import secure_filename
 
 # cryptography system
 from encryption.RC5Encryption import RC5Encryption
@@ -112,6 +115,70 @@ def decrypt():
             flash("The integrity of the encrypted image has been compromised.")
 
     return render_template('decrypt.html')
+
+@app.route('/pengujian', methods=['GET', 'POST'])
+def testing():
+    if request.method == 'POST':
+        if 'plain_image' not in request.files or 'cover_image' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        
+        plain_image_file = request.files['plain_image']
+        cover_image_file = request.files['cover_image']
+
+        if plain_image_file.filename == '' or cover_image_file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        
+        plain_image_path = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(plain_image_file.filename))
+        cover_image_path = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(cover_image_file.filename))
+
+        plain_image_file.save(plain_image_path)
+        cover_image_file.save(cover_image_path)
+
+        plainImage = cv2.imread(plain_image_path)
+        coverImage = cv2.imread(cover_image_path)
+
+        # Resize images to 400x400
+        plainImage_resized = cv2.resize(plainImage, (400, 400))
+        coverImage_resized = cv2.resize(coverImage, (400, 400))
+
+        # Save resized images to temporary paths
+        plain_image_resized_path = os.path.join(app.config['UPLOAD_FOLDER'], 'resized_' + plain_image_file.filename)
+        cover_image_resized_path = os.path.join(app.config['UPLOAD_FOLDER'], 'resized_' + cover_image_file.filename)
+
+        cv2.imwrite(plain_image_resized_path, plainImage_resized)
+        cv2.imwrite(cover_image_resized_path, coverImage_resized)
+
+        h, w, c = coverImage.shape
+        plainImage = cv2.resize(plainImage, (w, h))
+        
+        plainImage = plainImage.astype(np.float32)
+        coverImage = coverImage.astype(np.float32)
+
+        # Menghitung MSE
+        diff = np.subtract(plainImage, coverImage)
+        squared_diff = np.square(diff)
+        mse = np.mean(squared_diff)
+        
+        if mse == 0:
+            psnr = float('inf')
+        else:
+            # Menghitung PSNR
+            max_pixel = 255.0
+            psnr = 20 * np.log10(max_pixel) - 10 * np.log10(mse)
+        
+        return render_template('hasil_pengujian.html', 
+                        plain_image_path=url_for('uploaded_file', filename='resized_' + plain_image_file.filename),
+                        cover_image_path=url_for('uploaded_file', filename='resized_' + cover_image_file.filename),
+                        mse=mse, 
+                        psnr=psnr)
+    
+    return render_template('pengujian.html')
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 if __name__ == "__main__":
     app.run(debug=True)

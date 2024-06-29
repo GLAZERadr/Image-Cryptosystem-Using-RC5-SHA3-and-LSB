@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+
+{% block title %}Encrypt{% endblock %}
+
+{% block content %}
+<h2>Calculate MSE and PNSR</h2>
+<form id="encrypt-form" action="/pengujian" method="post" enctype="multipart/form-data">
+    <div class="drag-drop-container">
+        <div class="drop-zone" id="input_image_drop">
+            <span class="drop-zone__prompt">Drop Your Plain Image Here!</span>
+            <input type="file" id="plain_image" name="plain_image" class="drop-zone__input" required>
+        </div>
+        <div class="drop-zone" id="cover_image_drop">
+            <span class="drop-zone__prompt">Drop Your Cover Image Here!</span>
+            <input type="file" id="cover_image" name="cover_image" class="drop-zone__input" required>
+        </div>
+    </div>
+    <button type="submit">Calculate</button>
+</form>
+{% endblock %}
