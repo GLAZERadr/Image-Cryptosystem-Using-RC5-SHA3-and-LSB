@@ -119,45 +119,45 @@ def decrypt():
 @app.route('/pengujian', methods=['GET', 'POST'])
 def testing():
     if request.method == 'POST':
-        if 'plain_image' not in request.files or 'cover_image' not in request.files:
+        if 'stego_image' not in request.files or 'cover_image' not in request.files:
             flash('No file part')
             return redirect(request.url)
         
-        plain_image_file = request.files['plain_image']
+        stego_image_file = request.files['stego_image']
         cover_image_file = request.files['cover_image']
 
-        if plain_image_file.filename == '' or cover_image_file.filename == '':
+        if stego_image_file.filename == '' or cover_image_file.filename == '':
             flash('No selected file')
             return redirect(request.url)
         
-        plain_image_path = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(plain_image_file.filename))
+        stego_image_path = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(stego_image_file.filename))
         cover_image_path = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(cover_image_file.filename))
 
-        plain_image_file.save(plain_image_path)
+        stego_image_file.save(stego_image_path)
         cover_image_file.save(cover_image_path)
 
-        plainImage = cv2.imread(plain_image_path)
+        stegoImage = cv2.imread(stego_image_path)
         coverImage = cv2.imread(cover_image_path)
 
         # Resize images to 400x400
-        plainImage_resized = cv2.resize(plainImage, (400, 400))
+        stegoImage_resized = cv2.resize(stegoImage, (400, 400))
         coverImage_resized = cv2.resize(coverImage, (400, 400))
 
         # Save resized images to temporary paths
-        plain_image_resized_path = os.path.join(app.config['UPLOAD_FOLDER'], 'resized_' + plain_image_file.filename)
+        stego_image_resized_path = os.path.join(app.config['UPLOAD_FOLDER'], 'resized_' + stego_image_file.filename)
         cover_image_resized_path = os.path.join(app.config['UPLOAD_FOLDER'], 'resized_' + cover_image_file.filename)
 
-        cv2.imwrite(plain_image_resized_path, plainImage_resized)
+        cv2.imwrite(stego_image_resized_path, stegoImage_resized)
         cv2.imwrite(cover_image_resized_path, coverImage_resized)
 
         h, w, c = coverImage.shape
-        plainImage = cv2.resize(plainImage, (w, h))
+        stegoImage = cv2.resize(stegoImage, (w, h))
         
-        plainImage = plainImage.astype(np.float32)
+        stegoImage = stegoImage.astype(np.float32)
         coverImage = coverImage.astype(np.float32)
 
         # Menghitung MSE
-        diff = np.subtract(plainImage, coverImage)
+        diff = np.subtract(stegoImage, coverImage)
         squared_diff = np.square(diff)
         mse = np.mean(squared_diff)
         
@@ -169,7 +169,7 @@ def testing():
             psnr = 20 * np.log10(max_pixel) - 10 * np.log10(mse)
         
         return render_template('hasil_pengujian.html', 
-                        plain_image_path=url_for('uploaded_file', filename='resized_' + plain_image_file.filename),
+                        stego_image_path=url_for('uploaded_file', filename='resized_' + stego_image_file.filename),
                         cover_image_path=url_for('uploaded_file', filename='resized_' + cover_image_file.filename),
                         mse=mse, 
                         psnr=psnr)
